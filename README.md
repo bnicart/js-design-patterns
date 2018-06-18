@@ -34,10 +34,13 @@
 - Iterator
   - Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.
 
+* Observer
+  - Define a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.
 
-* State
+
+- State
   - Allow an object to alter its behavior when its internal state changes. The object will appear to change its class.
 
 
-- Strategy
+* Strategy
   - Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the algorithm vary independently from clients that use it.
