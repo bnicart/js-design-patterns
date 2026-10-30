@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JavaScript Design Patterns</title>
+<meta name="description" content="The Gang of Four patterns rewritten in modern JavaScript, plus the patterns JavaScript grew on its own. Each has a diagram, working code and tests.">
+<link rel="canonical" href="https://js-design-patterns.appforkeeps.net/"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="website"><meta property="og:title" content="JavaScript Design Patterns">
+<meta property="og:description" content="33 classic and modern patterns with diagrams, working code and tests."><meta property="og:url" content="https://js-design-patterns.appforkeeps.net/"><meta property="og:image" content="https://appforkeeps.net/logo.png">
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="JavaScript Design Patterns"><meta name="twitter:description" content="33 classic and modern patterns with diagrams, working code and tests."><meta name="twitter:image" content="https://appforkeeps.net/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..650;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #eef1ec;
+  --raised: #f8faf6;
+  --ink: #18201d;
+  --muted: #56635d;
+  --rule: #c5ccc4;
+  --mark: #f2d64b;
+  --on-mark: #18201d;
+  --creational: #2e6a8e;
+  --structural: #6b4fa0;
+  --behavioral: #2c7a55;
+  --modern: #9a5f12;
+  --code-keyword: #6b4fa0;
+  --code-string: #2c7a55;
+  --code-number: #9a5f12;
+  --code-title: #2e6a8e;
+  --code-comment: #7b8781;
+  --display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --body: 'Source Serif 4', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141917; --raised: #1b211f; --ink: #e4e9e4; --muted: #9aa59f; --rule: #2f3834;
+    --mark: #d9bd38; --on-mark: #141917;
+    --creational: #74acd0; --structural: #ab93dc; --behavioral: #6cc196; --modern: #d9a14f;
+    --code-keyword: #ab93dc; --code-string: #6cc196; --code-number: #d9a14f; --code-title: #74acd0; --code-comment: #7d8983;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #141917; --raised: #1b211f; --ink: #e4e9e4; --muted: #9aa59f; --rule: #2f3834;
+  --mark: #d9bd38; --on-mark: #141917;
+  --creational: #74acd0; --structural: #ab93dc; --behavioral: #6cc196; --modern: #d9a14f;
+  --code-keyword: #ab93dc; --code-string: #6cc196; --code-number: #d9a14f; --code-title: #74acd0; --code-comment: #7d8983;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.65 var(--body);
+  font-optical-sizing: auto;
+}
+a { color: inherit; text-decoration-color: var(--rule); text-underline-offset: 0.2em; }
+a:hover { text-decoration-color: currentColor; }
+:focus-visible { outline: 3px solid var(--mark); outline-offset: 2px; border-radius: 2px; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--raised); border: 1px solid var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
+::selection { background: var(--mark); color: var(--on-mark); }
+
+/* Layout: index on the left, reading column on the right */
+.shell { display: grid; grid-template-columns: 17rem minmax(0, 1fr); min-height: 100vh; }
+.index {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  border-right: 1px solid var(--rule);
+  padding: 1.5rem 1.25rem 3rem;
+  font-family: var(--display);
+}
+.index .home { display: block; font-weight: 700; font-size: 1.05rem; line-height: 1.2; text-decoration: none; margin-bottom: 1.75rem; }
+.index h2 { font-size: 0.95rem; font-weight: 650; margin: 1.5rem 0 0.4rem; color: var(--cat); }
+.index ol { list-style: none; margin: 0; padding: 0; }
+.index li a {
+  display: grid; grid-template-columns: 1.9rem 1fr; padding: 0.2rem 0.4rem; margin: 0 -0.4rem;
+  text-decoration: none; font-size: 0.94rem; border-radius: 4px; color: var(--muted);
+}
+.index li a span:first-child { font-variant-numeric: tabular-nums; }
+.index li a:hover { color: var(--ink); }
+.index li a[aria-current="page"] { background: var(--mark); color: var(--on-mark); font-weight: 600; }
+.index-toggle { display: none; }
+.theme { margin-top: 2rem; font: inherit; font-size: 0.85rem; color: var(--muted); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 0.25rem 0.8rem; cursor: pointer; }
+
+main:focus { outline: none; }
+main { padding: 3.5rem clamp(1rem, 5vw, 4.5rem) 6rem; width: 100%; max-width: 64rem; margin-inline: auto; }
+.measure { max-width: 40rem; }
+
+[data-cat="creational"] { --cat: var(--creational); }
+[data-cat="structural"] { --cat: var(--structural); }
+[data-cat="behavioral"] { --cat: var(--behavioral); }
+[data-cat="modern"] { --cat: var(--modern); }
+
+/* Home */
+.hero h1 {
+  font-family: var(--display); font-weight: 760; font-stretch: 82%;
+  font-size: clamp(2.6rem, 7vw, 5.2rem); line-height: 0.95; letter-spacing: -0.02em;
+  margin: 0 0 1.5rem; max-width: 12ch;
+}
+.hero p { font-size: 1.25rem; line-height: 1.55; color: var(--muted); margin: 0 0 1rem; }
+.hero p strong { color: var(--ink); font-weight: 600; }
+.chapter { margin-top: 4rem; }
+.chapter h2 { font-family: var(--display); font-weight: 700; font-size: 1.9rem; line-height: 1.1; margin: 0 0 0.35rem; color: var(--cat); }
+.chapter > p { margin: 0 0 1.25rem; color: var(--muted); }
+.toc { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--cat); }
+.toc a {
+  display: grid; grid-template-columns: 3.25rem 11rem minmax(0, 1fr); gap: 0 1rem; align-items: baseline;
+  padding: 0.85rem 0; border-bottom: 1px solid var(--rule); text-decoration: none;
+}
+.toc a:hover .toc-name { text-decoration: underline; text-decoration-color: var(--cat); text-underline-offset: 0.2em; }
+.toc-num { font-family: var(--display); font-weight: 760; font-stretch: 80%; font-size: 1.6rem; color: var(--cat); font-variant-numeric: tabular-nums; line-height: 1; }
+.toc-name { font-family: var(--display); font-weight: 650; font-size: 1.1rem; }
+.toc-problem { color: var(--muted); font-size: 0.97rem; line-height: 1.5; }
+
+/* Pattern page */
+.plate-head { display: grid; grid-template-columns: auto 1fr; gap: 0 1.5rem; align-items: end; margin-bottom: 2.25rem; }
+.plate-num {
+  font-family: var(--display); font-weight: 800; font-stretch: 75%;
+  font-size: clamp(5rem, 14vw, 9.5rem); line-height: 0.78; color: var(--cat); font-variant-numeric: tabular-nums;
+}
+.plate-head h1 { font-family: var(--display); font-weight: 720; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; margin: 0 0 0.4rem; letter-spacing: -0.01em; }
+.plate-head p { margin: 0; color: var(--cat); font-family: var(--display); font-weight: 600; }
+.problem { font-size: 1.3rem; line-height: 1.55; margin: 0 0 1.25rem; }
+.therefore { font-size: 1.15rem; margin: 0 0 2.5rem; padding-left: 1rem; border-left: 4px solid var(--cat); }
+.therefore b { font-family: var(--display); font-weight: 700; }
+
+figure.diagram { margin: 0 0 2.75rem; padding: 1.5rem; background: var(--raised); border: 1px solid var(--rule); border-radius: 10px; overflow-x: auto; }
+figure.diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+figure.diagram figcaption { margin-top: 1rem; font-size: 0.88rem; color: var(--muted); text-align: center; }
+.diagram-error { font-family: var(--mono); font-size: 0.85rem; white-space: pre-wrap; color: var(--muted); }
+
+.advice { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+.advice h2, .native h2, .code h2 { font-family: var(--display); font-weight: 700; font-size: 1.2rem; margin: 0 0 0.5rem; }
+.advice ul { margin: 0; padding-left: 1.1rem; }
+.advice li { margin-bottom: 0.45rem; }
+.advice li::marker { color: var(--cat); }
+.native { margin: 0 0 3rem; padding: 1.1rem 1.25rem; background: var(--raised); border-radius: 10px; border: 1px solid var(--rule); }
+.native p { margin: 0; }
+
+.code-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-bottom: 0.75rem; }
+.code-head h2 { margin: 0; }
+.tabs { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; }
+.tabs button { font: 600 0.9rem var(--display); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 0.3rem 0.9rem; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.code-head a { margin-left: auto; font-family: var(--display); font-size: 0.9rem; color: var(--muted); }
+pre {
+  margin: 0; padding: 1.25rem 1.4rem; overflow-x: auto;
+  background: var(--raised); border: 1px solid var(--rule); border-radius: 10px;
+  font: 0.86rem/1.6 var(--mono); tab-size: 2;
+}
+pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+.hljs-keyword, .hljs-built_in, .hljs-literal { color: var(--code-keyword); }
+.hljs-string, .hljs-regexp { color: var(--code-string); }
+.hljs-number { color: var(--code-number); }
+.hljs-title, .hljs-title.function_, .hljs-title.class_ { color: var(--code-title); }
+.hljs-comment { color: var(--code-comment); font-style: italic; }
+.hljs-property, .hljs-attr { color: var(--ink); }
+
+.pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); font-family: var(--display); }
+.pager a { text-decoration: none; display: flex; flex-direction: column; }
+.pager a span { font-size: 0.85rem; color: var(--muted); }
+.pager a b { font-weight: 650; font-size: 1.1rem; }
+.pager a:last-child { text-align: right; margin-left: auto; }
+
+.notice { padding: 1rem 1.25rem; border: 1px solid var(--rule); border-radius: 10px; background: var(--raised); }
+
+@media (max-width: 860px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .index { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 0.9rem 1rem; }
+  .index .home { margin: 0; }
+  .index-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .index-toggle { display: inline-block; font: 600 0.9rem var(--display); color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.9rem; cursor: pointer; }
+  .index-list { display: none; padding-top: 0.5rem; }
+  .index.open .index-list { display: block; }
+  main { padding: 2.25rem 1rem 4rem; }
+  .toc a { grid-template-columns: 2.5rem minmax(0, 1fr); }
+  .toc-problem { grid-column: 2; }
+  .advice { grid-template-columns: 1fr; gap: 1.5rem; }
+  .plate-head { gap: 0 1rem; }
+  .code-head a { margin-left: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .plate-num { animation: rise 500ms cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(0.15em); } }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="index" aria-label="All patterns">
+    <div class="index-bar">
+      <a class="home" href="#">JavaScript Design Patterns</a>
+      <button class="index-toggle" type="button" aria-expanded="false" aria-controls="index-list">All patterns</button>
+    </div>
+    <p style="padding:0 20px;font-size:13px"><a href="https://appforkeeps.net/">← App For Keeps</a></p>
+    <div class="index-list" id="index-list"></div>
+  </nav>
+  <main id="main" tabindex="-1">
+    <p class="notice" id="file-notice" hidden>This page loads its patterns from the repo files, which browsers block on <code>file://</code>. Run <code>npm start</code> in the repo and open <a href="http://localhost:8000">localhost:8000</a>.</p>
+  </main>
+</div>
+<script>
+  if (location.protocol === 'file:') document.getElementById('file-notice').hidden = false;
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+import { categories, patterns } from './catalog/index.js';
+
+const REPO = 'https://github.com/bnicart/js-design-patterns/blob/master/';
+const main = document.getElementById('main');
+const nav = document.querySelector('.index');
+const sourceCache = new Map();
+
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+// Catalog prose only uses `code` spans, so that is all the markup we support.
+const prose = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+const catOf = (id) => categories.find((c) => c.id === id);
+
+function renderIndex() {
+  document.getElementById('index-list').innerHTML = categories.map((c) => `
+    <section data-cat="${c.id}">
+      <h2>${c.name}</h2>
+      <ol>${patterns.filter((p) => p.category === c.id).map((p) => `
+        <li><a href="#${p.id}"><span>${p.number}</span><span>${p.name}</span></a></li>`).join('')}
+      </ol>
+    </section>`).join('') + `<button class="theme" type="button">Switch theme</button>`;
+}
+
+function renderHome() {
+  document.title = 'JavaScript Design Patterns';
+  main.innerHTML = `
+    <section class="hero measure">
+      <h1>A pattern language for JavaScript</h1>
+      <p><strong>${patterns.length} patterns</strong>: the Gang of Four classics rewritten in modern JavaScript, plus the patterns JavaScript grew on its own.</p>
+      <p>Each one starts with the problem it solves, shows its shape in a diagram, and comes with working code and the tests that use it. Each also says when to skip it, and what the language now does for you.</p>
+    </section>
+    ${categories.map((c) => `
+      <section class="chapter" data-cat="${c.id}">
+        <h2>${c.name}</h2>
+        <p class="measure">${c.blurb}</p>
+        <ol class="toc">${patterns.filter((p) => p.category === c.id).map((p) => `
+          <li><a href="#${p.id}">
+            <span class="toc-num">${p.number}</span>
+            <span class="toc-name">${p.name}</span>
+            <span class="toc-problem">${prose(p.solution)}</span>
+          </a></li>`).join('')}
+        </ol>
+      </section>`).join('')}`;
+}
+
+async function source(path) {
+  if (!sourceCache.has(path)) {
+    sourceCache.set(path, fetch(path).then((r) => (r.ok ? r.text() : Promise.reject(new Error(`${r.status} ${path}`)))));
+  }
+  return sourceCache.get(path);
+}
+
+function themeMermaid(cat) {
+  const css = getComputedStyle(document.documentElement);
+  const v = (name) => css.getPropertyValue(name).trim();
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'strict',
+    theme: 'base',
+    fontFamily: 'Bricolage Grotesque, system-ui, sans-serif',
+    themeVariables: {
+      fontSize: '15px',
+      background: v('--raised'),
+      primaryColor: v('--paper'),
+      primaryTextColor: v('--ink'),
+      primaryBorderColor: v(`--${cat}`),
+      secondaryColor: v('--paper'),
+      tertiaryColor: v('--raised'),
+      lineColor: v('--muted'),
+      textColor: v('--ink'),
+      noteBkgColor: v('--raised'),
+      noteBorderColor: v('--rule'),
+      noteTextColor: v('--muted'),
+      actorBkg: v('--paper'),
+      actorBorder: v(`--${cat}`),
+      actorTextColor: v('--ink'),
+      signalColor: v('--ink'),
+      signalTextColor: v('--ink'),
+      labelBoxBkgColor: v('--paper'),
+      labelBoxBorderColor: v(`--${cat}`),
+      edgeLabelBackground: v('--raised'),
+      clusterBkg: v('--raised'),
+      clusterBorder: v('--rule'),
+    },
+  });
+}
+
+let renderSeq = 0;
+async function renderDiagram(p) {
+  const fig = main.querySelector('figure.diagram .slot');
+  if (!fig) return;
+  themeMermaid(p.category);
+  try {
+    const { svg } = await mermaid.render(`d${++renderSeq}`, p.diagram);
+    fig.innerHTML = svg;
+    fig.querySelector('svg')?.setAttribute('role', 'img');
+    fig.querySelector('svg')?.setAttribute('aria-label', `${p.name} diagram`);
+  } catch (err) {
+    fig.innerHTML = `<p class="diagram-error">This diagram did not render: ${esc(String(err.message ?? err))}\n\n${esc(p.diagram)}</p>`;
+  }
+}
+
+async function showCode(p, which) {
+  const path = which === 'usage' ? p.testFile : p.file;
+  main.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === which)));
+  const link = main.querySelector('.code-head a');
+  link.href = REPO + path;
+  link.textContent = `${path} on GitHub`;
+  const code = main.querySelector('pre code');
+  try {
+    const text = await source(path);
+    code.textContent = text;
+    if (window.hljs) code.innerHTML = hljs.highlight(text, { language: 'javascript' }).value;
+  } catch (err) {
+    code.textContent = `Could not load ${path}. Serve the repo over HTTP (npm start) to see the code.`;
+  }
+}
+
+function renderPattern(p) {
+  const i = patterns.indexOf(p);
+  const prev = patterns[i - 1];
+  const next = patterns[i + 1];
+  const cat = catOf(p.category);
+  document.title = `${p.name}: JavaScript Design Patterns`;
+  main.innerHTML = `
+    <article data-cat="${p.category}">
+      <header class="plate-head">
+        <span class="plate-num" aria-hidden="true">${p.number}</span>
+        <div>
+          <h1>${p.name}</h1>
+          <p>${cat.name} pattern</p>
+        </div>
+      </header>
+      <div class="measure">
+        <p class="problem">${prose(p.problem)}</p>
+        <p class="therefore"><b>Therefore:</b> ${prose(p.solution)}</p>
+      </div>
+      <figure class="diagram"><div class="slot"></div><figcaption>The shape of ${esc(p.name)}</figcaption></figure>
+      <div class="advice">
+        <section><h2>Use it when</h2><ul>${p.useWhen.map((s) => `<li>${prose(s)}</li>`).join('')}</ul></section>
+        <section><h2>Skip it when</h2><ul>${p.avoidWhen.map((s) => `<li>${prose(s)}</li>`).join('')}</ul></section>
+      </div>
+      <section class="native measure"><h2>What modern JavaScript gives you</h2><p>${prose(p.native)}</p></section>
+      <section class="code">
+        <div class="code-head">
+          <h2>Code</h2>
+          <div class="tabs" role="tablist" aria-label="Code view">
+            <button type="button" role="tab" data-tab="pattern">Pattern</button>
+            <button type="button" role="tab" data-tab="usage">Usage (tests)</button>
+          </div>
+          <a href="#"></a>
+        </div>
+        <pre><code class="language-javascript"></code></pre>
+      </section>
+      <nav class="pager" aria-label="Previous and next pattern">
+        ${prev ? `<a href="#${prev.id}"><span>Previous</span><b>${prev.number}. ${prev.name}</b></a>` : ''}
+        ${next ? `<a href="#${next.id}"><span>Next</span><b>${next.number}. ${next.name}</b></a>` : ''}
+      </nav>
+    </article>`;
+  main.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => showCode(p, b.dataset.tab)));
+  showCode(p, 'pattern');
+  renderDiagram(p);
+}
+
+function route() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  const p = patterns.find((x) => x.id === id);
+  p ? renderPattern(p) : renderHome();
+  nav.querySelectorAll('li a[aria-current]').forEach((a) => a.removeAttribute('aria-current'));
+  nav.querySelector(`li a[href="#${CSS.escape(id)}"]`)?.setAttribute('aria-current', 'page');
+  nav.classList.remove('open');
+  nav.querySelector('.index-toggle').setAttribute('aria-expanded', 'false');
+  window.scrollTo(0, 0);
+  if (p) main.focus({ preventScroll: true });
+}
+
+renderIndex();
+route();
+addEventListener('hashchange', route);
+
+nav.querySelector('.index-toggle').addEventListener('click', (e) => {
+  const open = nav.classList.toggle('open');
+  e.currentTarget.setAttribute('aria-expanded', String(open));
+});
+
+// Theme: follows the OS unless the reader picks one.
+const rerenderDiagram = () => {
+  const p = patterns.find((x) => x.id === location.hash.slice(1));
+  if (p) renderDiagram(p);
+};
+nav.querySelector('.theme').addEventListener('click', () => {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const current = document.documentElement.dataset.theme ?? (dark ? 'dark' : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('theme', next); } catch {}
+  rerenderDiagram();
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rerenderDiagram);
+</script>
+<script>
+  try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch {}
+</script>
+</body>
+</html>
